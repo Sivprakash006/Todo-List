@@ -1,0 +1,240 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF‑8" />
+  <meta name="viewport" content="width=device‑width, initial‑scale=1.0" />
+  <title>Tic Tac Toe</title>
+  <style>
+
+/* Base reset and font */
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  display:flex; justify-content:center; align-items:center;
+  min-height:100vh; background:#1a1a2e; font-family:sans-serif;
+}
+
+/* Game board container */
+.game-container {
+  background:#16213e; padding:20px; border-radius:12px;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
+  text-align:center; width:320px;
+}
+
+/* Game grid */
+.board {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  grid-gap:8px;
+  margin-bottom:16px;
+}
+
+.cell {
+  width:100%; padding-bottom:100%; /* square aspect */
+  position:relative;
+  background:#e0e1dd; border-radius:8px;
+  cursor:pointer; transition:background 0.2s ease;
+}
+.cell:hover { background:#fff; }
+
+.cell::after {
+  content:attr(data-value);
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  font-size:3rem; color:#0f3460;
+  user-select:none;
+}
+
+/* Message & reset */
+#message {
+  margin-bottom:16px; color:#e0e1dd; font-size:1.1rem;
+}
+#reset {
+  background:#0f3460; color:#e0e1dd;
+  border:none; padding:12px 24px;
+  border-radius:8px; cursor:pointer;
+  transition:opacity 0.2s ease;
+}
+#reset:hover { opacity:0.8; }
+
+/* Responsive media query */
+@media(max-width:400px) {
+  .game-container { width:90%; }
+  .cell::after { font-size:2rem; }
+  #reset { padding:10px 20px; font-size:0.9rem; }
+}
+
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>Tic Tac Toe</h1>
+    <div id="message">Player X's turn</div>
+    <div class="board" id="board"></div>
+    <button id="reset">Restart</button>
+  </div>
+
+  <script>
+(() => {
+  const board = document.getElementById('board');
+  const msg = document.getElementById('message');
+  const reset = document.getElementById('reset');
+  let cells, current = 'X', running = true;
+  let boardState = Array(9).fill('');
+
+  const winPatterns = [
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+  ];
+
+  function init() {
+    board.innerHTML = '';
+    boardState.fill('');
+    running = true;
+    current = 'X';
+    msg.textContent = `Player ${current}'s turn`;
+    for (let i=0;i<9;i++){
+      const div = document.createElement('div');
+      div.classList.add('cell');
+      div.dataset.index = i;
+      div.dataset.value = '';
+      div.addEventListener('click', cellClick);
+      board.appendChild(div);
+    }
+    cells = document.querySelectorAll('.cell');
+  }
+
+  function cellClick(e) {
+    const idx = e.target.dataset.index;
+    if (!running || boardState[idx]) return;
+
+    boardState[idx] = current;
+    e.target.dataset.value = current;
+
+    if (checkWin()) {
+      msg.textContent = `Player ${current} wins!`;
+      running = false;
+    } else if (!boardState.includes('')) {
+      msg.textContent = `It's a tie!`;
+      running = false;
+    } else {
+      current = current === 'X' ? 'O' : 'X';
+      msg.textContent = `Player ${current}'s turn`;
+    }
+  }
+
+  function checkWin() {
+    return winPatterns.some(pattern => {
+      const [a,b,c] = pattern;
+      return boardState[a] && boardState[a] === boardState[b] && boardState[a] === boardState[c];
+    });
+  }
+
+  reset.addEventListener('click', init);
+
+  init();
+})();
+  </script>
+</body>
+</html>
+
+On Wed, Jul 16, 2025 at 1:48 PM SUNIL PRASANNA CSE2023 <sunilprasannacse2023@ksrce.ac.in> wrote:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Todo List with Edit</title>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; font-family:Arial,sans-serif; }
+    body { background:#f0f2f5; display:flex; justify-content:center; padding:20px; }
+    .todo-app { background:#fff; width:100%; max-width:450px; padding:20px; border-radius:8px;
+                box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+    h1 { text-align:center; margin-bottom:18px; color:#333; }
+    #new { display:flex; margin-bottom:15px; }
+    #new input { flex:1; padding:10px; border:1px solid #ccc; border-radius:4px 0 0 4px; }
+    #new button { padding:0 20px; border:none; background:#007bff; color:#fff; cursor:pointer;
+                  border-radius:0 4px 4px 0; transition:background .2s; }
+    #new button:hover { background:#0069d9; }
+    #list > .todo { display:flex; align-items:center; justify-content:space-between;
+                    padding:8px; border-bottom:1px solid #eee; }
+    #list > .todo:last-child { border-bottom:none; }
+    #list span.task { flex:1; padding-right:10px; }
+    #list button { margin-left:5px; border:none; background:none; cursor:pointer;
+                   color:#007bff; }
+    #list button.save { color:#28a745; }
+  </style>
+</head>
+<body>
+  <div class="todo-app">
+    <h1>Todo with Edit</h1>
+    <div id="new">
+      <input id="todo-input" placeholder="Add a task..." />
+      <button id="add-btn">Add</button>
+    </div>
+    <div id="list"></div>
+  </div>
+
+  <script>
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    function save() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      render();
+    }
+
+    function render() {
+      const list = document.getElementById("list");
+      list.innerHTML = "";
+      tasks.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "todo";
+        div.innerHTML = `
+          <span class="task">${item.text}</span>
+          <button class="edit">Edit</button>
+          <button class="delete">Delete</button>
+        `;
+
+        const ts = div.querySelector(".task");
+        const editBtn = div.querySelector(".edit");
+        const delBtn = div.querySelector(".delete");
+
+        editBtn.addEventListener("click", () => {
+          if (editBtn.textContent === "Edit") {
+            ts.contentEditable = true;
+            ts.focus();
+            editBtn.textContent = "Save";
+            editBtn.classList.add("save");
+          } else {
+            ts.contentEditable = false;
+            const newText = ts.textContent.trim();
+            if (newText) {
+              item.text = newText;
+              save();
+            }
+            editBtn.textContent = "Edit";
+            editBtn.classList.remove("save");
+          }
+        });
+
+        delBtn.addEventListener("click", () => {
+          tasks = tasks.filter(t => t !== item);
+          save();
+        });
+
+        list.appendChild(div);
+      });
+    }
+
+    document.getElementById("add-btn").addEventListener("click", () => {
+      const input = document.getElementById("todo-input");
+      const txt = input.value.trim();
+      if (txt) {
+        tasks.push({ text: txt });
+        input.value = "";
+        save();
+      }
+    });
+
